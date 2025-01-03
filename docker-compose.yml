@@ -1,22 +1,47 @@
-version: '3'
+version: '3.9'
 
 services:
   backend:
     build:
-      context: ./LMS_Backend    # Set the context to the backend folder
+      context: ./LMS_Backend     # Path to backend folder
+      dockerfile: Dockerfile     # Backend Dockerfile
     ports:
       - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/Udaan
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: Shashwat@16
+    depends_on:
+      - db                       # Ensure the database starts before the backend
     networks:
       - app-network
 
   frontend:
     build:
-      context: ./udaan_frontend  # Set the context to the frontend folder
+      context: ./udaan_frontend  # Path to frontend folder
+      dockerfile: Dockerfile     # Frontend Dockerfile
     ports:
-      - "80:80"
+      - "3000:3000"           # Port mapping for React app served by Nginx
+    networks:
+      - app-network
+
+  db:
+    image: postgres:15           # PostgreSQL version
+    restart: always              # Restart policy
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Shashwat@16
+      POSTGRES_DB: Udaan
+    ports:
+      - "5432:5432"              # Expose PostgreSQL on localhost:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persist data
     networks:
       - app-network
 
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  postgres_data:
